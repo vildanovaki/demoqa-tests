@@ -20,25 +20,19 @@ import static java.lang.String.format;
 
 public class CheckFormTests {
 
+    public static CredentialConfig credentials = ConfigFactory.create(CredentialConfig.class);
 
     @BeforeAll
     static void beforeAll() {
-        CredentialConfig credentialConfig = ConfigFactory.create(CredentialConfig.class);
-        String selenoidLogin = credentialConfig.login();
-        String selenoidPassword = credentialConfig.password();
-
-        String selenoidURL = System.getProperty("selenoidURL");
-        System.out.println(selenoidURL);
-        String selenoidConnectionString = String.format("https://%s:%s@%s/wd/hub",
-                selenoidLogin,
-                selenoidPassword,
-                selenoidURL);
-        SelenideLogger.addListener("allure", new AllureSelenide());
-
-        Configuration.remote = selenoidConnectionString;
+        Configuration.browser = System.getProperty("browser", "chrome");
+        Configuration.browserVersion = System.getProperty("version", "100.0");
+        Configuration.browserSize = System.getProperty("size", "1366x768");
         Configuration.baseUrl = "https://demoqa.com";
-        Configuration.browserSize = "1920x1080";
 
+        SelenideLogger.addListener("AllureListener", new AllureSelenide());
+
+        String remoteUrl = System.getProperty("remoteUrl", "selenoid.autotests.cloud");
+        Configuration.remote = format("https://%s:%s@%s/wd/hub/", credentials.login(), credentials.password(), remoteUrl);
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("enableVNC", true);
@@ -56,7 +50,7 @@ public class CheckFormTests {
 
     @Test
     void fillFormTest() {
-        open("https://demoqa.com/automation-practice-form");
+        open("/automation-practice-form");
 
         $("#firstName").setValue("Kamilya");
         $("#lastName").setValue("Vildanova");
