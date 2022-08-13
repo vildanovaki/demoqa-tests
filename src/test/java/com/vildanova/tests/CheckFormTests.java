@@ -1,10 +1,11 @@
 package com.vildanova.tests;
 
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
+import com.vildanova.config.CredentialConfig;
 import com.vildanova.helpers.Attach;
 import io.qameta.allure.selenide.AllureSelenide;
+import org.aeonbits.owner.ConfigFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,17 +16,34 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
+import static java.lang.String.format;
 
 public class CheckFormTests {
 
+
     @BeforeAll
     static void beforeAll() {
-        SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
-        Configuration.startMaximized = true;
-        Configuration.timeout = 10000;
+        CredentialConfig credentialConfig = ConfigFactory.create(CredentialConfig.class);
+        String selenoidLogin = credentialConfig.login();
+        String selenoidPassword = credentialConfig.password();
+
+        String selenoidURL = System.getProperty("selenoidURL");
+        System.out.println(selenoidURL);
+        String selenoidConnectionString = String.format("https://%s:%s@%s/wd/hub",
+                selenoidLogin,
+                selenoidPassword,
+                selenoidURL);
+        SelenideLogger.addListener("allure", new AllureSelenide());
+
+        Configuration.remote = selenoidConnectionString;
+        Configuration.baseUrl = "https://demoqa.com";
+        Configuration.browserSize = "1920x1080";
+
+
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("enableVNC", true);
         capabilities.setCapability("enableVideo", true);
+        Configuration.browserCapabilities = capabilities;
     }
 
     @AfterEach
