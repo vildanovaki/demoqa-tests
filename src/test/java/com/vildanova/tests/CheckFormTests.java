@@ -21,7 +21,6 @@ public class CheckFormTests {
     @BeforeAll
     static void beforeAll() {
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
-        Configuration.browser = "FIREFOX";
         Configuration.startMaximized = true;
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
