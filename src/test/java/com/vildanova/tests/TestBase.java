@@ -19,19 +19,20 @@ public class TestBase {
 
     @BeforeAll
     static void beforeAll() {
+        Configuration.browser = System.getProperty("browser", "chrome");
+        Configuration.browserVersion = System.getProperty("version", "100.0");
+        Configuration.browserSize = System.getProperty("size", "1366x768");
+        Configuration.baseUrl = "https://demoqa.com";
+
         SelenideLogger.addListener("AllureListener", new AllureSelenide());
+
+        String remoteUrl = System.getProperty("remoteUrl", "selenoid.autotests.cloud");
+        Configuration.remote = format("https://%s:%s@%s/wd/hub/", credentials.login(), credentials.password(), remoteUrl);
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("enableVNC", true);
         capabilities.setCapability("enableVideo", true);
-
         Configuration.browserCapabilities = capabilities;
-        Configuration.baseUrl = "https://demoqa.com";
-        Configuration.browser = System.getProperty("browser","chrome");
-        Configuration.browserVersion = System.getProperty("version","99");
-        Configuration.browserSize = System.getProperty("size", "1920x1080");
-        Configuration.remote = String.format("https://%s:%s@%s", credentials.login(), credentials.password(),
-                credentials.selenoidUrl());
     }
 
     @AfterEach
